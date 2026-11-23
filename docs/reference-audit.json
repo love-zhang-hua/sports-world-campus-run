@@ -1,0 +1,170 @@
+{
+  "records": 13,
+  "people": 2,
+  "rounding_assumption": "Nearest 1s duration/pace, 1spm cadence, 1cm step length, 0.01km displayed distance; steps treated as integer count. Interval overlap is only arithmetic compatibility, not sensor validation.",
+  "rows": [
+    {
+      "group": "A",
+      "date": "11-03",
+      "cadence_from_steps_time": 182.2991347342398,
+      "cadence_delta_spm": 0.2991347342398001,
+      "speed_identity_relative_error_pct": -0.08806666666667518,
+      "distance_relative_error_pct": 0.1076559464442628,
+      "cadence_rounding_intervals_overlap": true,
+      "speed_rounding_intervals_overlap": true,
+      "displayed_distance_rounding_intervals_overlap": true
+    },
+    {
+      "group": "A",
+      "date": "11-14",
+      "cadence_from_steps_time": 184.46280991735537,
+      "cadence_delta_spm": 0.46280991735537214,
+      "speed_identity_relative_error_pct": -0.09413333333333496,
+      "distance_relative_error_pct": 0.392720836329441,
+      "cadence_rounding_intervals_overlap": true,
+      "speed_rounding_intervals_overlap": true,
+      "displayed_distance_rounding_intervals_overlap": true
+    },
+    {
+      "group": "A",
+      "date": "11-19",
+      "cadence_from_steps_time": 188.76216968011127,
+      "cadence_delta_spm": -0.2378303198887295,
+      "speed_identity_relative_error_pct": -0.4757499999999859,
+      "distance_relative_error_pct": 0.2649560730720868,
+      "cadence_rounding_intervals_overlap": true,
+      "speed_rounding_intervals_overlap": true,
+      "displayed_distance_rounding_intervals_overlap": true
+    },
+    {
+      "group": "A",
+      "date": "11-20",
+      "cadence_from_steps_time": 183.13953488372093,
+      "cadence_delta_spm": 0.13953488372092693,
+      "speed_identity_relative_error_pct": -0.594400000000006,
+      "distance_relative_error_pct": 0.37348272642390157,
+      "cadence_rounding_intervals_overlap": true,
+      "speed_rounding_intervals_overlap": true,
+      "displayed_distance_rounding_intervals_overlap": true
+    },
+    {
+      "group": "A",
+      "date": "11-22",
+      "cadence_from_steps_time": 201.38686131386862,
+      "cadence_delta_spm": 0.38686131386862144,
+      "speed_identity_relative_error_pct": -0.7126999999999994,
+      "distance_relative_error_pct": null,
+      "cadence_rounding_intervals_overlap": true,
+      "speed_rounding_intervals_overlap": true,
+      "displayed_distance_rounding_intervals_overlap": null
+    },
+    {
+      "group": "B",
+      "date": "11-14a",
+      "cadence_from_steps_time": 173.09021113243762,
+      "cadence_delta_spm": 0.09021113243761647,
+      "speed_identity_relative_error_pct": -0.23090000000001165,
+      "distance_relative_error_pct": null,
+      "cadence_rounding_intervals_overlap": true,
+      "speed_rounding_intervals_overlap": true,
+      "displayed_distance_rounding_intervals_overlap": null
+    },
+    {
+      "group": "B",
+      "date": "11-20",
+      "cadence_from_steps_time": 160.10362694300517,
+      "cadence_delta_spm": 0.1036269430051675,
+      "speed_identity_relative_error_pct": 0.12799999999999478,
+      "distance_relative_error_pct": null,
+      "cadence_rounding_intervals_overlap": true,
+      "speed_rounding_intervals_overlap": true,
+      "displayed_distance_rounding_intervals_overlap": null
+    },
+    {
+      "group": "B",
+      "date": "11-16",
+      "cadence_from_steps_time": 161.3525179856115,
+      "cadence_delta_spm": 0.35251798561151304,
+      "speed_identity_relative_error_pct": -0.6549499999999986,
+      "distance_relative_error_pct": null,
+      "cadence_rounding_intervals_overlap": true,
+      "speed_rounding_intervals_overlap": true,
+      "displayed_distance_rounding_intervals_overlap": null
+    },
+    {
+      "group": "B",
+      "date": "11-13",
+      "cadence_from_steps_time": 173.41463414634146,
+      "cadence_delta_spm": 0.4146341463414558,
+      "speed_identity_relative_error_pct": -0.317400000000001,
+      "distance_relative_error_pct": null,
+      "cadence_rounding_intervals_overlap": true,
+      "speed_rounding_intervals_overlap": true,
+      "displayed_distance_rounding_intervals_overlap": null
+    },
+    {
+      "group": "B",
+      "date": "11-12",
+      "cadence_from_steps_time": 160.250569476082,
+      "cadence_delta_spm": 0.2505694760820063,
+      "speed_identity_relative_error_pct": -0.36000000000000476,
+      "distance_relative_error_pct": null,
+      "cadence_rounding_intervals_overlap": true,
+      "speed_rounding_intervals_overlap": true,
+      "displayed_distance_rounding_intervals_overlap": null
+    },
+    {
+      "group": "B",
+      "date": "11-15",
+      "cadence_from_steps_time": 172.51264755480608,
+      "cadence_delta_spm": -0.4873524451939204,
+      "speed_identity_relative_error_pct": 0.0891500000000045,
+      "distance_relative_error_pct": null,
+      "cadence_rounding_intervals_overlap": true,
+      "speed_rounding_intervals_overlap": true,
+      "displayed_distance_rounding_intervals_overlap": null
+    },
+    {
+      "group": "B",
+      "date": "11-14b",
+      "cadence_from_steps_time": 157.76937618147448,
+      "cadence_delta_spm": -0.2306238185255154,
+      "speed_identity_relative_error_pct": -0.03866666666667573,
+      "distance_relative_error_pct": null,
+      "cadence_rounding_intervals_overlap": true,
+      "speed_rounding_intervals_overlap": true,
+      "displayed_distance_rounding_intervals_overlap": null
+    },
+    {
+      "group": "B",
+      "date": "11-22",
+      "cadence_from_steps_time": 178.8697017268446,
+      "cadence_delta_spm": -0.13029827315540388,
+      "speed_identity_relative_error_pct": -0.1687166666666684,
+      "distance_relative_error_pct": null,
+      "cadence_rounding_intervals_overlap": true,
+      "speed_rounding_intervals_overlap": true,
+      "displayed_distance_rounding_intervals_overlap": null
+    }
+  ],
+  "groups": {
+    "A": {
+      "records": 5,
+      "mean_cadence_spm": 187.8,
+      "descriptive_ols_slope_spm_per_m_s": -26.344489530758107
+    },
+    "B": {
+      "records": 8,
+      "mean_cadence_spm": 167.125,
+      "descriptive_ols_slope_spm_per_m_s": -4.703762414748657
+    },
+    "all": {
+      "records": 13,
+      "mean_cadence_spm": 175.07692307692307,
+      "descriptive_ols_slope_spm_per_m_s": -17.759761288844746
+    }
+  },
+  "max_abs_cadence_delta_spm": 0.4873524451939204,
+  "max_abs_speed_error_pct": 0.7126999999999994,
+  "limitations": "Repeated summaries from two runners, no controlled speed trial. Neither pooled nor within-person summary slopes establish a physiological speed response. Missing fields stay missing; no inference of measured power, calories or ascent."
+}

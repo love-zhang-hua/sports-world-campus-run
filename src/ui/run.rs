@@ -557,8 +557,11 @@ impl App {
             }
             let mid_pace=(page.pace_min+page.pace_max) as f64/2.0;
             let gait=route_planner::gait(1000.0/mid_pace.max(1.0),0.0);
-            ui.label(format!("自适应参考：{:.1} km/h · {:.0} 步/分 · {:.0} 厘米/步",3600.0/mid_pace.max(1.0),gait.cadence,gait.stride*100.0));
-            ui.small("合并13次记录的平滑估计；样本配速3:57–6:46/km，超出范围仅作边界参考。功率和热量仍根据体重估算。");
+            ui.label(format!("群体参考：{:.1} km/h · {:.0} 步/分 · {:.0} 厘米/步",3600.0/mid_pace.max(1.0),gait.cadence,gait.stride*100.0));
+            ui.small("论文群体参考，非个人最优步频；研究范围约3:34–10:10/km。热量和功率仍是估算。");
+            if !(1.64..=4.68).contains(&(1000.0/mid_pace.max(1.0))) {
+                ui.small("当前速度超出研究范围，步频使用边界估计。");
+            }
             if ui.checkbox(&mut self.config.terrain_elevation,"按路线地形地图计算海拔与爬升").changed() {
                 let _=crate::api::model::save_config(&self.config);
                 page.preview_stale=true;

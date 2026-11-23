@@ -2,15 +2,15 @@ Unicode true
 !include "MUI2.nsh"
 !include "FileFunc.nsh"
 Name "运动路线助手"
-OutFile "dist\SportsRoute-1.7.0-Setup.exe"
+OutFile "dist\SportsRoute-1.7.1-Setup.exe"
 InstallDir "$LOCALAPPDATA\Programs\SportsRoute"
 RequestExecutionLevel user
 SetCompressor /SOLID lzma
-BrandingText "运动路线助手 · Windows 1.7.0"
-VIProductVersion "1.7.0.0"
+BrandingText "运动路线助手 · Windows 1.7.1"
+VIProductVersion "1.7.1.0"
 VIAddVersionKey /LANG=2052 "ProductName" "运动路线助手"
 VIAddVersionKey /LANG=2052 "FileDescription" "运动路线助手安装程序"
-VIAddVersionKey /LANG=2052 "FileVersion" "1.7.0"
+VIAddVersionKey /LANG=2052 "FileVersion" "1.7.1"
 VIAddVersionKey /LANG=2052 "LegalCopyright" "Based on YanamiNeko / Sports-simulation; CC BY-NC 4.0"
 Icon "assets\app.ico"
 UninstallIcon "assets\app.ico"
@@ -44,6 +44,10 @@ Section "运动路线助手" Main
   File "LICENSE"
   File "THIRD_PARTY_NOTICES.md"
   File /oname=使用说明.md "docs\WINDOWS.md"
+  File "docs\MODEL_EVIDENCE.md"
+  File "docs\reference-audit.json"
+  File "docs\reference-runs.csv"
+  File "docs\reference-runs.json"
   WriteUninstaller "$INSTDIR\Uninstall.exe"
   StrCmp $Smoke "1" smoke normal
   smoke:
@@ -59,7 +63,7 @@ Section "运动路线助手" Main
     CreateShortCut "$SMPROGRAMS\运动路线助手\卸载.lnk" "$INSTDIR\Uninstall.exe"
     CreateShortCut "$DESKTOP\运动路线助手.lnk" "$INSTDIR\SportsRoute.exe"
     WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\SportsRoute" "DisplayName" "运动路线助手"
-    WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\SportsRoute" "DisplayVersion" "1.7.0"
+    WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\SportsRoute" "DisplayVersion" "1.7.1"
     WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\SportsRoute" "UninstallString" '$\"$INSTDIR\Uninstall.exe$\"'
     WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\SportsRoute" "DisplayIcon" "$INSTDIR\SportsRoute.exe"
     WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\SportsRoute" "InstallLocation" "$INSTDIR"
@@ -87,6 +91,11 @@ Section "Uninstall"
     Delete "$INSTDIR\LICENSE"
     Delete "$INSTDIR\THIRD_PARTY_NOTICES.md"
     Delete "$INSTDIR\使用说明.md"
+    Delete "$INSTDIR\MODEL_EVIDENCE.md"
+    Delete "$INSTDIR\reference-audit.json"
+    Delete "$INSTDIR\reference-runs.csv"
+    Delete "$INSTDIR\reference-runs.json"
+
     Delete "$INSTDIR\Uninstall.exe"
     RMDir "$INSTDIR"
 SectionEnd

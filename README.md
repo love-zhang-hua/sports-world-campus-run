@@ -2,17 +2,17 @@
 
 基于 [liing6666/Sports-simulation](https://github.com/liing6666/Sports-simulation) 0.5.1 的衍生项目，原作者 **YanamiNeko**。提供 Windows 桌面版、Android 路线助手和 SwiftUI iOS 源码，共用原项目 Rust 协议与轨迹核心。**本项目不是运动世界官方客户端。**
 
-## Windows 电脑版 1.7.0
+## Windows 电脑版 1.7.1
 
-下载 [SportsRoute-1.7.0-Setup.exe](https://github.com/love-zhang-hua/sports-world-campus-run/releases/latest/download/SportsRoute-1.7.0-Setup.exe)，适用于 Windows 10/11 64位；按向导安装后从桌面打开。无需另外安装 Python、Rust 或 Android 模拟器。[安装、卸载和参数说明](docs/WINDOWS.md)。
+下载 [SportsRoute-1.7.1-Setup.exe](https://github.com/love-zhang-hua/sports-world-campus-run/releases/latest/download/SportsRoute-1.7.1-Setup.exe)，适用于 Windows 10/11 64位；按向导安装后从桌面打开。无需另外安装 Python、Rust 或 Android 模拟器。[安装、卸载和参数说明](docs/WINDOWS.md)。
 
-本版合并两组匿名跑步样本，按配速适配参考步频、步幅与步数，并可从路线地形高程计算累计爬升。模型及误差范围见说明。Windows 版不能替代 Android 系统的模拟定位提供者；Android 1.7.0 同步配速参考和路线地形功能。
+本版按跑步论文修正速度—步频参考，步幅与步数随速度一致计算；两组匿名记录保留用于核对，不再混合拟合。爬升来自路线高程。[论文、数据审查与适用范围](docs/MODEL_EVIDENCE.md)。Windows 版不能替代 Android 系统的模拟定位提供者；Android 1.7.1 同步配速参考和路线地形功能。
 
 ## Android：一个 APK 即可安装
 
-**[直接下载 SportsRoute-1.7.0.apk](https://github.com/love-zhang-hua/sports-world-campus-run/releases/latest/download/SportsRoute-1.7.0.apk)** · **[查看完整安装与使用教程](docs/ANDROID_GUIDE.md)**
+**[直接下载 SportsRoute-1.7.1.apk](https://github.com/love-zhang-hua/sports-world-campus-run/releases/latest/download/SportsRoute-1.7.1.apk)** · **[查看完整安装与使用教程](docs/ANDROID_GUIDE.md)**
 
-只安装 `SportsRoute-1.7.0.apk`，约 2.3 MiB，支持 Android 8.0+ / ARM64。登录、地图、路线核心和定位服务均已内置，无需另装 LocationSpoofer、原版程序、测试包或编程环境；不需要 Root 或地图 Key。安装后的桌面名称为 **运动路线助手**。
+只安装 `SportsRoute-1.7.1.apk`，约 2.3 MiB，支持 Android 8.0+ / ARM64。登录、地图、路线核心和定位服务均已内置，无需另装 LocationSpoofer、原版程序、测试包或编程环境；不需要 Root 或地图 Key。安装后的桌面名称为 **运动路线助手**。
 
 1. 手机下载 APK → 打开文件 → 系统要求时允许当前浏览器/文件管理器安装应用 → 安装。
 2. 打开“运动路线助手” → 登录自己的账号 → 等待校区和点位 → “打开实时地图选路线” → “使用路线”。
@@ -24,7 +24,7 @@
 
 ## 其他下载与版本说明
 
-- **Android 预编译 APK**：本仓库 Releases 中的 `SportsRoute-1.7.0.apk`，Android 8.0+、ARM64（arm64-v8a）。沿用既有签名，可覆盖同签名旧版。发布页附 SHA-256。
+- **Android 预编译 APK**：本仓库 Releases 中的 `SportsRoute-1.7.1.apk`，Android 8.0+、ARM64（arm64-v8a）。沿用既有签名，可覆盖同签名旧版。发布页附 SHA-256。
 - **iOS**：保留 SwiftUI 源码和构建说明，本次未编译或运行，不提供 iOS 安装包。
 
 ## 核心功能

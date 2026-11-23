@@ -83,7 +83,7 @@ pub fn override_bd_a(track: &mut Track, altitude_m: f64) -> Result<(), String> {
     Ok(())
 }
 
-/// Combined screenshot reference; cadence and stride remain coupled to speed.
+/// Published population reference; cadence and step length remain coupled to speed.
 pub fn cadence_target(v_ms: f64, km_done: f64) -> f64 {
     route_planner::gait(v_ms.max(0.0), route_planner::fatigue_from_km(km_done)).cadence
 }

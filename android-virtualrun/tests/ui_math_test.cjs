@@ -19,10 +19,17 @@ test('formatResult("preview",{distance_m:1000,duration_s:300}).includes("尚未�
 for(const p of [[39.9,116.4],[0,0],[-30,150],[65,-20]])test(`(()=>{const p=${JSON.stringify(p)},q=mapInverse(...mapWorld(p));return Math.abs(q[0]-p[0])<1e-7&&Math.abs(q[1]-p[1])<1e-7})()`);
 console.log('PASS '+n+' UI/state assertions; fixture map explicitly synthetic; no account/network/submission calls');
 
-assert.ok(Math.abs(vm.runInContext('referenceGait(10).cadence',box)-185.419)<.01);
+assert.ok(Math.abs(vm.runInContext('referenceGait(10).cadence',box)-166.72)<1e-9);
 for(const kmh of [3.6,8,10,12,15,20]){
  const g=vm.runInContext('referenceGait('+kmh+')',box);
  assert.ok(Math.abs(g.cadence/60*g.stride_cm/100-kmh/3.6)<1e-9);
 }
 assert.ok(vm.runInContext('formatResult("preview",{distance_m:2000,duration_s:720,steps:2220,cadence_spm:185,stride_cm:90,ascent_m:12,terrain_source:"DEM"}).includes("12.0")',box));
-console.log('PASS combined-cohort gait identity, pace boundaries and DEM summary display');
+assert.ok(vm.runInContext('referenceGait(15).cadence>referenceGait(10).cadence',box));
+assert.ok(Math.abs(vm.runInContext('referenceGait(15).cadence',box)-175.07)<1e-9);
+assert.equal(vm.runInContext('referenceGait(3.6).supported',box),false);
+assert.equal(vm.runInContext('referenceGait(20).supported',box),false);
+assert.equal(vm.runInContext('referenceGait(8).supported',box),true);
+assert.equal(vm.runInContext('referenceGait(NaN)',box),null);
+assert.ok(vm.runInContext('(()=>{$("speed").value="20";info();return $("gaitReference").textContent.includes("超出研究速度范围")})()',box));
+console.log('PASS published factor-of-two conversion, monotone speed response, unsupported-range warning, gait identity and DEM summary');

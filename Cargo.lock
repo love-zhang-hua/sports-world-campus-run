@@ -3748,7 +3748,7 @@ dependencies = [
 
 [[package]]
 name = "sportssimulation"
-version = "1.7.0"
+version = "1.7.1"
 dependencies = [
  "aes",
  "android-activity",

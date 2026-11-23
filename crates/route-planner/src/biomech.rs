@@ -1,15 +1,11 @@
-//! 生物力学联动：配速 v、步频 f_cadence、步幅 L_stride 的非线性耦合。
-//!
-//!   硬约束：v = (f_cadence / 60) · L_stride   （v: m/s，f: 步/分，L: 米）
-//!
-//! 由速度与疲劳度确定 (步频, 步幅)，**始终严格满足等式**。
+//! Running reference model, with cadence in steps/min and length in metres/step.
+//! Identity: speed = cadence / 60 * step_length.
+//! This is a population reference, not an individual optimum or sensor reading.
 
-/// 步态结果。
 #[derive(Clone, Copy, Debug)]
 pub struct Gait {
-    /// 步频（步/分）。
     pub cadence: f64,
-    /// 步幅（米）。
+    /// Historical API name; this is ONE step, not a two-step stride cycle.
     pub stride: f64,
 }
 
@@ -21,31 +17,34 @@ pub const REFERENCE_CADENCE: &[(f64, f64)] = &[
     (261.0,173.0),(260.0,158.0),(307.0,179.0),
 ];
 
-/// Gaussian local mean, 20 seconds/km bandwidth. This is a descriptive
-/// reference, not a physiological law or reconstruction of sensor readings.
-/// Out-of-sample paces use the nearest supported boundary, never extrapolate.
-pub fn reference_cadence(pace_s_km: f64) -> f64 {
-    let pace = if pace_s_km.is_finite() { pace_s_km.clamp(237.0,406.0) } else { 358.0 };
-    let mut weighted=0.0;
-    let mut weights=0.0;
-    for &(p,c) in REFERENCE_CADENCE {
-        let w=(-0.5*((pace-p)/20.0).powi(2)).exp();
-        weighted += w*c;
-        weights += w;
-    }
-    weighted/weights
+/// Van Oeveren et al. (2019), DOI 10.1080/02640414.2019.1614137.
+/// SF in strides/min = 75.01 + 3.006 * speed_m_s. Multiply by TWO for steps/min.
+/// The source population speed range is 1.64..=4.68 m/s; outside that range
+/// hold the boundary cadence as an engineering fallback, not validated running.
+/// The two screenshot cohorts remain observations, not a pooled speed model.
+pub const REFERENCE_SPEED_MIN: f64 = 1.64;
+pub const REFERENCE_SPEED_MAX: f64 = 4.68;
+
+pub fn reference_speed_supported(v: f64) -> bool {
+    v.is_finite() && (REFERENCE_SPEED_MIN..=REFERENCE_SPEED_MAX).contains(&v)
 }
 
-/// Speed determines reference cadence; stride is derived, not sampled
-/// independently. Summary images do not establish a fatigue coefficient.
+pub fn reference_cadence(pace_s_km: f64) -> f64 {
+    if !pace_s_km.is_finite() || pace_s_km <= 0.0 { return 0.0; }
+    let v=(1000.0/pace_s_km).clamp(REFERENCE_SPEED_MIN,REFERENCE_SPEED_MAX);
+    150.02 + 6.012*v
+}
+
+/// No fatigue/grade coefficient can be identified from summary screenshots.
+/// Derive step length at the ACTUAL speed so the identity also holds outside
+/// the evidence range. Do not clamp length then silently alter cadence.
 pub fn gait(v: f64, _fatigue: f64) -> Gait {
     if !v.is_finite() || v <= 0.0 { return Gait { cadence: 0.0, stride: 0.0 }; }
     let cadence=reference_cadence(1000.0/v);
-    let stride=(v*60.0/cadence).clamp(0.5,1.7);
-    Gait { cadence: v*60.0/stride, stride }
+    Gait { cadence, stride: v*60.0/cadence }
 }
 
-/// 由速度与疲劳度取步幅（米），包络 [0.55, 1.35]。
+/// Step length (metres/step), derived from actual speed and reference cadence.
 pub fn stride_for(v: f64, fatigue: f64) -> f64 {
     gait(v, fatigue).stride
 }
@@ -105,20 +104,40 @@ mod tests {
     use super::*;
 
     #[test]
-    fn combined_reference_has_two_cohorts_and_stays_bounded() {
+    fn population_reference_converts_strides_to_steps_and_preserves_observations() {
         assert_eq!(REFERENCE_CADENCE.len(),13);
-        for pace in 237..=406 {
-            let g=gait(1000.0/pace as f64,0.0);
-            assert!((158.0..=201.0).contains(&g.cadence));
-            assert!((0.7..=1.6).contains(&g.stride));
-            let next=reference_cadence(pace as f64+0.01);
-            assert!((next-g.cadence).abs()<0.05);
+        // Published coefficients, including the often-missed factor of two.
+        assert!((reference_cadence(360.0)-166.72).abs()<1e-9);
+        assert!((reference_cadence(240.0)-175.07).abs()<1e-9);
+        let mut last=0.0;
+        for n in 164..=468 {
+            let v=n as f64/100.0;
+            let g=gait(v,0.0);
+            assert!(g.cadence>last);
+            assert!((g.cadence-(150.02+6.012*v)).abs()<1e-9);
+            assert!((speed_from(g.cadence,g.stride)-v).abs()<1e-9);
+            last=g.cadence;
         }
-        assert!((reference_cadence(360.0)-185.0).abs()<5.0);
-        assert!((reference_cadence(255.0)-167.0).abs()<5.0);
-        assert_eq!(reference_cadence(100.0),reference_cadence(237.0));
-        assert_eq!(reference_cadence(600.0),reference_cadence(406.0));
-        assert_eq!(gait(0.0,0.0).cadence,0.0);
+    }
+
+    #[test]
+    fn unsupported_speeds_hold_boundary_cadence_without_breaking_identity() {
+        assert!(reference_speed_supported(1.64));
+        assert!(reference_speed_supported(4.68));
+        for v in [0.1,1.0,1.63,4.69,6.3,10.0] {
+            assert!(!reference_speed_supported(v));
+            let g=gait(v,0.0);
+            let boundary=if v<1.64 {1.64} else {4.68};
+            assert!((g.cadence-gait(boundary,0.0).cadence).abs()<1e-9);
+            assert!((speed_from(g.cadence,g.stride)-v).abs()<1e-9);
+        }
+        for v in [0.0,-1.0,f64::NAN,f64::INFINITY] {
+            assert!(!reference_speed_supported(v));
+            assert_eq!(gait(v,0.0).cadence,0.0);
+        }
+        for pace in [0.0,-1.0,f64::NAN,f64::INFINITY] {
+            assert_eq!(reference_cadence(pace),0.0);
+        }
     }
 
     /// 等式约束 `v = cadence/60 * stride` 必须始终成立。
@@ -143,7 +162,7 @@ mod tests {
                 let g = gait(v, fat);
                 let back = speed_from(g.cadence, g.stride);
                 assert!((back - v).abs() < 1e-6, "v={v} back={back}");
-                assert!((0.5..=1.7).contains(&g.stride), "stride={}", g.stride);
+                assert!(g.stride.is_finite() && g.stride > 0.0, "stride={}", g.stride);
                 assert!((110.0..=230.0).contains(&g.cadence), "cad={}", g.cadence);
             }
         }

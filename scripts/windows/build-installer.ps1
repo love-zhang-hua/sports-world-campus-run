@@ -11,7 +11,7 @@ try {
     Copy-Item -LiteralPath (Join-Path $metadata.target_directory 'release/sportssimulation.exe') -Destination 'dist/SportsRoute.exe'
     & $MakeNSIS /NOCD /INPUTCHARSET UTF8 /OUTPUTCHARSET UTF8 'scripts/windows/installer.nsi'
     if ($LASTEXITCODE -ne 0) { throw 'Installer build failed' }
-    Get-FileHash -LiteralPath 'dist/SportsRoute-1.7.0-Setup.exe' -Algorithm SHA256
+    Get-FileHash -LiteralPath 'dist/SportsRoute-1.7.1-Setup.exe' -Algorithm SHA256
 } finally {
     Pop-Location
 }

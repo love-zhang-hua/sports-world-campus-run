@@ -8,15 +8,14 @@ function bind(id,fn){$(id).onclick=()=>{try{fn();}catch(e){notice(e.message);}};
 function distance(a,b){const r=Math.PI/180,h=Math.sin((b[0]-a[0])*r/2)**2+Math.cos(a[0]*r)*Math.cos(b[0]*r)*Math.sin((b[1]-a[1])*r/2)**2;return 12742017.6*Math.asin(Math.sqrt(Math.min(1,h)));}
 function referenceGait(kmh){
  if(!Number.isFinite(kmh)||kmh<=0)return null;
- const pace=3600/kmh,p=Math.max(237,Math.min(406,pace)),samples=[[383,182],[358,184],[355,189],[336,183],[406,201],[237,173],[252,160],[287,161],[258,173],[265,160],[261,173],[260,158],[307,179]];
- let sum=0,weight=0;for(const [x,c] of samples){const w=Math.exp(-.5*((p-x)/20)**2);sum+=w*c;weight+=w;}
- const speed=kmh/3.6,stride=Math.max(.5,Math.min(1.7,speed*60/(sum/weight)));
- return {pace,cadence:speed*60/stride,stride_cm:stride*100,supported:pace>=237&&pace<=406};
+ // Van Oeveren 2019: strides/min -> steps/min (x2). Match native gait exactly.
+ const speed=kmh/3.6,v=Math.max(1.64,Math.min(4.68,speed)),cadence=150.02+6.012*v;
+ return {pace:3600/kmh,cadence,stride_cm:speed*60/cadence*100,supported:speed>=1.64&&speed<=4.68};
 }
 function routeLength(){let d=0;for(let i=1;i<points.length;i++)d+=distance(points[i-1],points[i]);if($("loop").checked&&points.length>1)d+=distance(points[points.length-1],points[0]);return d;}
 function cfg(){const speed=Number($("speed").value),loop=$("loop").checked,laps=loop?Number($("laps").value):1;if(!Number.isFinite(speed)||speed<3.6||speed>20||!Number.isInteger(laps)||laps<1||laps>100)throw Error("速度须为 3.6～20 km/h，圈数须为 1～100 的整数");return{points,speed,laps,loop,city:$("city").value.trim(),sport:$("sport").value,seed:routeSeed};}
 function requireRoute(){const c=cfg();if(points.length<2||routeLength()<1)throw Error("请先选择至少两个不同的途经点");return c;}
-function info(){const loop=$("loop").checked,laps=loop?Number($("laps").value):1,d=routeLength()*laps,speed=Number($("speed").value);$("laps").disabled=!loop||active;$("length").textContent=Number.isFinite(d)?Math.round(d).toLocaleString():"—";$("duration").textContent=speed>0&&Number.isFinite(d)?(d/(speed/3.6)/60).toFixed(1):"—";$("routeHint").textContent=points.length?"已选 "+points.length+" 个途经点 · 在上方点位图继续编辑":"尚未选择路线";const gait=referenceGait(speed);$("gaitReference").textContent=gait?("配速 "+Math.floor(Math.round(gait.pace)/60)+":"+String(Math.round(gait.pace)%60).padStart(2,"0")+"/km · 参考步频 "+Math.round(gait.cadence)+" 步/分 · 步幅 "+Math.round(gait.stride_cm)+" 厘米"+(gait.supported?"":" · 超出样本配速范围，使用边界参考")):"请填写有效速度";drawAccountMap();}
+function info(){const loop=$("loop").checked,laps=loop?Number($("laps").value):1,d=routeLength()*laps,speed=Number($("speed").value);$("laps").disabled=!loop||active;$("length").textContent=Number.isFinite(d)?Math.round(d).toLocaleString():"—";$("duration").textContent=speed>0&&Number.isFinite(d)?(d/(speed/3.6)/60).toFixed(1):"—";$("routeHint").textContent=points.length?"已选 "+points.length+" 个途经点 · 在上方点位图继续编辑":"尚未选择路线";const gait=referenceGait(speed);$("gaitReference").textContent=gait?("配速 "+Math.floor(Math.round(gait.pace)/60)+":"+String(Math.round(gait.pace)%60).padStart(2,"0")+"/km · 群体参考步频 "+Math.round(gait.cadence)+" 步/分 · 步幅 "+Math.round(gait.stride_cm)+" 厘米"+(gait.supported?"":" · 超出研究速度范围，使用边界估计")):"请填写有效速度";drawAccountMap();}
 function saveRoute(){if(points.length<2)return;try{call("save",JSON.stringify(cfg()));}catch(e){notice(e.message);}}
 function loadPoints(p){try{if(active)throw Error("请先停止定位回放，再修改路线");if(!Array.isArray(p)||p.length<2||p.length>10000||p.some(q=>!Array.isArray(q)||q.length!==2||!q.every(Number.isFinite)||Math.abs(q[0])>85||Math.abs(q[1])>180))throw Error("路线坐标无效");points=p;routeSeed=Math.floor(Math.random()*2147483647);
 let mapRequested=false;info();saveRoute();$("coreResult").textContent="路线已更新，请检查轨迹。";}catch(e){notice(e.message);}}
