@@ -1,0 +1,51 @@
+name: CampusRun
+options:
+  bundleIdPrefix: org.sportssimulation
+  deploymentTarget:
+    iOS: "16.0"
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    IPHONEOS_DEPLOYMENT_TARGET: "16.0"
+    ENABLE_USER_SCRIPT_SANDBOXING: NO
+    MARKETING_VERSION: "1.0.0"
+    CURRENT_PROJECT_VERSION: "1"
+targets:
+  CampusRun:
+    type: application
+    platform: iOS
+    sources:
+      - path: CampusRun
+        excludes: [Resources]
+      - path: CampusRun/Resources
+        buildPhase: resources
+    info:
+      path: Generated/Info.plist
+      properties:
+        CFBundleDisplayName: 运动世界校园跑
+        UILaunchScreen: {}
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait, UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight]
+        UIFileSharingEnabled: false
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: org.sportssimulation.campusrun
+        SWIFT_OBJC_BRIDGING_HEADER: CampusRun/Bridge.h
+        LIBRARY_SEARCH_PATHS: ["$(inherited)", "$(PROJECT_DIR)/Native/$(PLATFORM_NAME)"]
+        OTHER_LDFLAGS: ["$(inherited)", "-lsportssimulation", "-lc++", "-lz", "-liconv", "-framework", Security, "-framework", SystemConfiguration]
+        TARGETED_DEVICE_FAMILY: "1,2"
+        CODE_SIGN_STYLE: Automatic
+    preBuildScripts:
+      - name: Build shared Rust core
+        script: 'bash "$SRCROOT/build-core.sh"'
+        basedOnDependencyAnalysis: false
+schemes:
+  CampusRun:
+    build:
+      targets:
+        CampusRun: all
+    run:
+      config: Debug
+    archive:
+      config: Release

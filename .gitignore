@@ -1,0 +1,79 @@
+/target
+Cargo.lock.bak
+sportssimulation.log*
+*.log.old
+
+# 运行时数据（含会话/凭据，禁止入库）
+/session.json
+/config.json
+/profiles.json
+/identity.json
+/points_cache.json
+/fence_cache.json
+/semester_result.json
+/rank_result.json
+/run.log
+/runs/
+/submission_receipts/
+/school_roads/
+/map-search-backup/
+/*.osm
+/.idea/
+docs/_preview.png
+/fixtures
+/ai_sports.json
+/obs_*.json
+/rec_all.tmp
+/msg.txt
+/.superpowers/
+/android/build/
+/android/.signing/
+*.apk
+*.aab
+*.keystore
+*.jks
+/target-ui/
+/.android-test/
+/.worktrees/
+
+# 打包输出（含 exe 与运行数据，禁止入库）
+/dist
+/*.exe
+# 本地工具目录
+/.mimosa/
+/.zcode/
+
+# 自动更新替换残留
+*.exe.old
+*.exe.new
+/dist_20261029/
+
+# APK 签名中间产物
+*.idsig
+
+# 设备身份核对临时文件（内容与 session.json 相同，含 Token）
+/ident_backup_check.tmp
+/*.tmp
+
+# 发布打包产物
+/dist/
+
+# Android route assistant / iOS generated output and private data
+/android-virtualrun/build/
+/android-virtualrun/.signing/
+/android-virtualrun/device-tests/
+/ios/build/
+/ios/Native/
+/ios/Generated/
+/ios/*.xcodeproj/
+/ios/*.xcworkspace/
+**/xcuserdata/
+**/session.json
+**/identity.json
+**/points_cache.json
+**/fence_cache.json
+*.mobileprovision
+*.p12
+*.ipa
+.DS_Store
+__pycache__/

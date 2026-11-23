@@ -1,0 +1,14 @@
+{
+  "status": "build_succeeded_not_runtime_tested",
+  "run_url": "https://github.com/hello-word-hu/sports-world-campus-run/actions/runs/43803845139",
+  "source_commit": "1c234bb056e6cdbb354a70ac61380486525a8db3",
+  "artifact_id": 14197633229,
+  "bundle_id": "org.sportssimulation.campusrun",
+  "minimum_ios": "16.0",
+  "version": "1.0",
+  "unsigned_ipa": "CampusRun-iOS-1.0.0-unsigned.ipa",
+  "unsigned_ipa_sha256": "6aa7f9ccb251ac820f139dda82803970d6465b01aa43bec21901e52702e4134d",
+  "code_signing": false,
+  "application_tests": false,
+  "account_tests": false
+}

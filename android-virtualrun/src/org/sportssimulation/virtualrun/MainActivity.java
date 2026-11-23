@@ -1,0 +1,47 @@
+package org.sportssimulation.virtualrun;
+import android.Manifest;import android.app.*;import android.content.*;import android.content.pm.PackageManager;import android.net.Uri;import android.os.*;import android.provider.Settings;import android.webkit.*;import android.widget.*;import java.io.*;import java.nio.charset.StandardCharsets;import java.util.*;import org.json.*;import org.xmlpull.v1.*;
+public final class MainActivity extends Activity {
+ private WebView web;
+ @Override public void onCreate(Bundle b){super.onCreate(b);WebView.setWebContentsDebuggingEnabled(false);web=new WebView(this);setContentView(web);web.getSettings().setJavaScriptEnabled(true);web.getSettings().setDomStorageEnabled(true);web.getSettings().setAllowFileAccess(false);web.getSettings().setAllowContentAccess(false);web.getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);web.addJavascriptInterface(new Bridge(),"Android");web.setWebViewClient(new WebViewClient(){
+  @Override public boolean shouldOverrideUrlLoading(WebView w,WebResourceRequest r){return true;}
+  @Override public WebResourceResponse shouldInterceptRequest(WebView w,WebResourceRequest req){Uri uri=req.getUrl();String path=uri.getPath();try{
+   if("https".equals(uri.getScheme())&&"app.local".equals(uri.getHost())&&("/index.html".equals(path)||"/app.js".equals(path)||"/account-map.js".equals(path)||"/maplibre.js".equals(path)||"/maplibre.css".equals(path)||"/map-style.json".equals(path)))return new WebResourceResponse(path.endsWith(".js")?"application/javascript":path.endsWith(".css")?"text/css":path.endsWith(".json")?"application/json":"text/html","UTF-8",getAssets().open(path.substring(1)));
+   if("https".equals(uri.getScheme())&&"tiles.openfreemap.org".equals(uri.getHost())&&uri.getPort()==-1&&path!=null&&(path.startsWith("/planet")||path.startsWith("/fonts/")||path.startsWith("/sprites/")||path.startsWith("/natural_earth/")))return null;
+  }catch(Exception ignored){}return new WebResourceResponse("text/plain","UTF-8",new ByteArrayInputStream(new byte[0]));}
+ });web.loadUrl("https://app.local/index.html");}
+ private void tell(String s){runOnUiThread(()->web.evaluateJavascript("notice("+JSONObject.quote(s)+")",null));}
+ private boolean fine(){return checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)==PackageManager.PERMISSION_GRANTED;}
+ private void permissions(){List<String> p=new ArrayList<>();if(!fine()){p.add(Manifest.permission.ACCESS_FINE_LOCATION);p.add(Manifest.permission.ACCESS_COARSE_LOCATION);}if(Build.VERSION.SDK_INT>=33&&checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)!=PackageManager.PERMISSION_GRANTED)p.add(Manifest.permission.POST_NOTIFICATIONS);if(!p.isEmpty())requestPermissions(p.toArray(new String[0]),7);else tell("定位权限已开启；请在开发者选项中选择本应用作为模拟位置应用。");}
+ private JSONObject validated(String raw)throws Exception{
+  if(raw.length()>2000000)throw new IllegalArgumentException("路线文件过大");JSONObject o=new JSONObject(raw);JSONArray a=o.getJSONArray("points");List<RouteEngine.Point> p=new ArrayList<>();for(int i=0;i<a.length();i++){JSONArray q=a.getJSONArray(i);p.add(new RouteEngine.Point(q.getDouble(0),q.getDouble(1)));}RouteEngine r=new RouteEngine(p,o.optBoolean("loop"));new RouteEngine.Playback(r,o.getDouble("speed"),o.optBoolean("loop")?o.getInt("laps"):1);return o;
+ }
+ public final class Bridge {
+  @JavascriptInterface public String mapLocation(){try{if(!fine())return "{}";android.location.LocationManager lm=(android.location.LocationManager)getSystemService(LOCATION_SERVICE);android.location.Location best=null;for(String provider:lm.getProviders(true)){android.location.Location loc=lm.getLastKnownLocation(provider);if(loc!=null&&!loc.isFromMockProvider()&&System.currentTimeMillis()-loc.getTime()<1800000&&(best==null||loc.getTime()>best.getTime()))best=loc;}if(best==null)return "{}";return new JSONObject().put("latitude",best.getLatitude()).put("longitude",best.getLongitude()).toString();}catch(Exception e){return "{}";}}
+  @JavascriptInterface public void mapCredits(){runOnUiThread(()->{try{startActivity(new Intent(Intent.ACTION_VIEW,Uri.parse("https://www.openstreetmap.org/copyright")));}catch(Exception e){tell("地图数据许可：https://www.openstreetmap.org/copyright");}});}
+  @JavascriptInterface public void liveMap(String raw){runOnUiThread(()->{try{if(RunService.running)throw new IllegalArgumentException("请先停止定位回放");if(raw==null||raw.length()>2000000)throw new IllegalArgumentException("地图数据过大");new JSONObject(raw);startActivityForResult(new Intent(MainActivity.this,LiveMapActivity.class).putExtra("map",raw),41);}catch(Exception e){tell(e.getMessage());}});}
+  @JavascriptInterface public void captcha(){runOnUiThread(()->startActivityForResult(new Intent(MainActivity.this,CaptchaActivity.class),40));}
+  @JavascriptInterface public String sessionStorage(){try{File f=new File(getFilesDir(),"session.json");JSONObject out=new JSONObject().put("exists",f.isFile()).put("storage","app-private/files/session.json");if(f.isFile()){try{ByteArrayOutputStream bytes=new ByteArrayOutputStream();try(FileInputStream in=new FileInputStream(f)){byte[] b=new byte[4096];int n;while((n=in.read(b))!=-1){bytes.write(b,0,n);if(bytes.size()>1048576)throw new IOException("session too large");}}JSONObject session=new JSONObject(bytes.toString("UTF-8"));out.put("valid_json",true).put("usable",session.optLong("uid",0)>0&&!session.optString("token","").isEmpty());}catch(Exception e){out.put("valid_json",false).put("usable",false);}}return out.toString();}catch(Exception e){return "{\"inspection_failed\":true}";}}
+  @JavascriptInterface public String coreState(){return CoreBridge.state();}
+  @JavascriptInterface public void core(String op,String raw){runOnUiThread(()->{try{
+   if(raw==null||raw.length()>2000000)throw new IllegalArgumentException("输入过大");
+   if(CoreBridge.busy){tell("原程序正在处理，请等待当前操作完成");return;}
+   if("submit".equals(op)){
+    JSONObject o=validated(raw);String city=o.optString("city").trim();if(city.isEmpty())throw new IllegalArgumentException("请填写路线所在城市");
+    new AlertDialog.Builder(MainActivity.this).setTitle("提交选定路线到运动世界")
+     .setMessage("城市："+city+"\n项目："+("campus".equals(o.optString("sport"))?"校园跑":"户外跑")+"\n途经点："+o.getJSONArray("points").length()+"\n速度："+o.getDouble("speed")+" km/h\n\n将使用原程序的登录会话和提交流程，结果以服务端返回为准。")
+     .setNegativeButton("返回检查",null).setPositiveButton("确认提交",(d,w)->CoreBridge.request(MainActivity.this,op,raw)).show();
+   }else CoreBridge.request(MainActivity.this,op,raw);
+  }catch(Exception e){tell(e.getMessage());}});}
+
+  @JavascriptInterface public void clearSavedRoute(){getSharedPreferences("routes",0).edit().remove("saved").apply();}
+  @JavascriptInterface public String saved(){return getSharedPreferences("routes",0).getString("saved","");}
+  @JavascriptInterface public void save(String raw){try{validated(raw);getSharedPreferences("routes",0).edit().putString("saved",raw).apply();}catch(Exception e){tell(e.getMessage());}}
+  @JavascriptInterface public String status(){try{JSONObject j=new JSONObject();j.put("state",RunService.state);j.put("error",RunService.error);j.put("running",RunService.running);j.put("paused",RunService.paused);j.put("metres",RunService.metres);j.put("altitude",RunService.altitude);j.put("ascent",RunService.ascent);j.put("hasTerrain",RunService.hasTerrain);j.put("lat",RunService.latitude);j.put("lon",RunService.longitude);return j.toString();}catch(Exception e){return "{}";}}
+  @JavascriptInterface public void start(String raw){runOnUiThread(()->{try{if(RunService.running){tell("请先停止当前回放再更换路线");return;}validated(raw);if(!fine()){permissions();tell("请允许精确位置后再次点击开始");return;}AppOpsManager ops=(AppOpsManager)getSystemService(APP_OPS_SERVICE);if(ops.checkOpNoThrow("android:mock_location",android.os.Process.myUid(),getPackageName())!=AppOpsManager.MODE_ALLOWED){tell("请先打开开发者选项 → 选择模拟位置信息应用 → 运动路线助手");return;}if(!CoreBridge.request(MainActivity.this,"playback",raw)){tell("请等待当前处理完成");return;}getSharedPreferences("routes",0).edit().putString("saved",raw).apply();tell("正在读取路线地形，成功后开始回放；不会提交记录。");}catch(Exception e){tell(e.toString());}});}
+  @JavascriptInterface public void control(String action){runOnUiThread(()->{if("stop".equals(action)){stopService(new Intent(MainActivity.this,RunService.class));RunService.state="已停止，已释放模拟定位";}else if("pause".equals(action)&&RunService.running)startService(new Intent(MainActivity.this,RunService.class).setAction(RunService.PAUSE));});}
+  @JavascriptInterface public void setup(){runOnUiThread(()->{try{startActivity(new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS));}catch(Exception e){startActivity(new Intent(Settings.ACTION_SETTINGS));}});}
+  @JavascriptInterface public void permission(){runOnUiThread(()->permissions());}
+ }
+ @Override protected void onActivityResult(int req,int result,Intent data){super.onActivityResult(req,result,data);if(req==41&&result==RESULT_OK&&data!=null){String points=data.getStringExtra("points");try{new JSONArray(points);web.evaluateJavascript("loadPoints("+points+")",null);}catch(Exception e){tell("地图路线读取失败");}}if(req==40){if(result==RESULT_OK&&data!=null){String proof=data.getStringExtra("proof");web.evaluateJavascript("completeCaptcha("+JSONObject.quote(proof)+")",null);}else web.evaluateJavascript("captchaCancelled()",null);}}
+ @Override protected void onDestroy(){web.removeJavascriptInterface("Android");web.destroy();super.onDestroy();}
+}

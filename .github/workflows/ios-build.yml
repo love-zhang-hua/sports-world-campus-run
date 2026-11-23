@@ -1,0 +1,28 @@
+name: Build iOS (no tests)
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: macos-15-intel
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-ios
+      - name: Install XcodeGen
+        run: brew install xcodegen
+      - name: Generate project
+        working-directory: ios
+        run: xcodegen generate
+      - name: Compile unsigned app (no tests or account access)
+        working-directory: ios
+        run: xcodebuild -project CampusRun.xcodeproj -scheme CampusRun -configuration Release -destination 'generic/platform=iOS' -derivedDataPath build CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO build
+      - name: Package unsigned app
+        run: ditto -c -k --sequesterRsrc --keepParent ios/build/Build/Products/Release-iphoneos/CampusRun.app ios/CampusRun-unsigned.app.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: CampusRun-iOS-unsigned
+          path: ios/CampusRun-unsigned.app.zip

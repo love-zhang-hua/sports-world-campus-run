@@ -1,0 +1,3 @@
+# 第三方声明
+
+见根目录 [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md) 与 [LICENSE](../LICENSE)。
